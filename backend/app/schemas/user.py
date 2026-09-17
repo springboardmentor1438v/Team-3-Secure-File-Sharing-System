@@ -1,74 +1,46 @@
-from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr
+
 
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
-    role: Optional[str] = "user"
 
-class UserLogin(BaseModel):
-    email: str
-    password: str
-    mfa_code: Optional[str] = None
 
 class UserResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
     id: int
     username: str
-    email: str
+    email: EmailStr
     role: str
     is_active: bool
-    is_verified: bool = False
-    mfa_enabled: bool
-    storage_used_bytes: int
-    created_at: datetime
 
-class VerifyOtpRequest(BaseModel):
+    class Config:
+        from_attributes = True
+
+
+class UserLogin(BaseModel):
     email: EmailStr
-    otp: Optional[str] = None
-    code: Optional[str] = None
-
-class ResendOtpRequest(BaseModel):
-    email: EmailStr
+    password: str
 
 
-class Token(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "bearer"
-    user: UserResponse
-
-class MfaSetupResponse(BaseModel):
-    secret: str
-    qr_code_base64: str
-
-class MfaVerifyRequest(BaseModel):
-    code: str
-
-class ForgotPasswordRequest(BaseModel):
+class ForgotPassword(BaseModel):
     email: EmailStr
 
-class ResetPasswordRequest(BaseModel):
-    email: EmailStr
+
+class ResetPassword(BaseModel):
     token: str
     new_password: str
 
-class ChangePasswordRequest(BaseModel):
-    current_password: str
-    new_password: str
 
-class SessionResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+class MFAEnableResponse(BaseModel):
+    message: str
+    secret: str
+    qr_code: str
 
-    id: int
-    ip_address: Optional[str] = None
-    user_agent: Optional[str] = None
-    device_info: Optional[str] = None
-    created_at: datetime
-    expires_at: datetime
 
-class GoogleAuthRequest(BaseModel):
-    credential: str # Google ID token
+class MFAVerify(BaseModel):
+    code: str
+
+class MFAChallenge(BaseModel):
+    mfa_token: str
+    code: str
